@@ -552,8 +552,6 @@ def unique_population(sites, catchments, pop_path):
     from qgis.core import QgsGeometry, QgsPointXY, QgsRasterLayer, QgsRectangle
     site_geom = {f["site_id"]: f.geometry() for f in sites.getFeatures()}
     catch = {f["site_id"]: f.geometry() for f in catchments.getFeatures()}
-    for g in catch.values():
-        g.prepareGeometry()
     r = QgsRasterLayer(pop_path, "pop")
     pr, ext = r.dataProvider(), r.extent()
     cw, ch = r.rasterUnitsPerPixelX(), r.rasterUnitsPerPixelY()
