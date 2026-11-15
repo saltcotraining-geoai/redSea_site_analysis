@@ -64,6 +64,20 @@ The class settings were read from the QGIS Processing history and checked agains
 
 Every site carries a `class_kept` field (1 = the class run kept it).
 
+### Results (class profile, run of 15 Nov 2026)
+
+15 sites, 1,785 ha (300 m wadi exclusion on). About 167,900 people live within 5 km, each counted once; adding the overlapping catchments site by site would give 294,644. The top five with the default weights:
+
+| Rank | Site | Area (ha) | People within 5 km (counted once) | To road (m) | Score | Class run |
+|---|---|---|---|---|---|---|
+| 1 | 7 | 92.1 | 7,782 | 172 | 0.700 | lost |
+| 2 | 9 | 88.9 | 102,398 | 709 | 0.693 | lost |
+| 3 | 8 | 90.9 | 5,945 | 3,605 | 0.650 | kept |
+| 4 | 12 | 79.0 | 17,445 | 151 | 0.636 | lost |
+| 5 | 3 | 131.6 | 8,052 | 4,515 | 0.629 | lost |
+
+Sites 7, 9, 8, 12, 3, 2 and 1 stay in the top ten under all five weight scenarios. Without the wadi exclusion, site 8 is the full 105 ha class site and ranks first.
+
 ## Outputs: one folder per run
 
 ```

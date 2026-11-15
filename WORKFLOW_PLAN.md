@@ -207,9 +207,9 @@ Originals are in `_backup_20261115/`. **Next:** run `/usr/bin/python3 demo.py` o
 - **Phase 0** copies the class DEM: `raster.dem_warp_order = use_class_dem`, from `~/Projects/2026/Project_20260913/02_Raw_data/redSea_dem_utm36n.tiff`. This is exact and takes seconds.
   - `class_grid` (Red Sea clip warped onto the class grid) is faster than a full warp but gives only about 80 % identical cells, because Nearest picks depend on GDAL's warp approximation.
   - `warp_then_clip` warps the whole Sudan DEM first, about 400 MB.
-- **Phase 2:** 1,491 patches touch the corridor, 224 of them with invalid geometry. Of the **15 sites**, 11 are invalid; the 4 valid ones are the class sites, each 100 % covered by our sites.
+- **Phase 2:** 1,491 patches touch the corridor, 224 of them with invalid geometry. Of the **15 sites**, 11 are invalid; the 4 valid ones are the class sites. Without the wadi exclusion each is 100 % covered; with it, class fid 22 is 86.4 % covered (by site 8), as the 300 m wadi buffer removes part of it.
   - No-wadi variant: 1,843 ha. Wadi 300 m variant: 1,785 ha (481 ha removed).
-  - Top-ranked under the balanced weights: site 9 near Port Sudan (88.9 ha, 111,781 people within 5 km, 0.7 km to a road). It was lost in the class run.
+  - Before people were counted once, site 9 near Port Sudan ranked first (88.9 ha, 111,781 people gross). See the final ranking below.
   - 20 pairs of catchments overlap. Site 1 (503 ha) is only 22 % inside 5 km, because join by location keeps whole patches.
 
 ### Run folders (like a qgis2web export)
@@ -247,3 +247,12 @@ output_class/latest                link to the newest run (also runs/LATEST.txt)
   - Checked on the 12:52 run (300 m variant): the gross count equals Zonal Statistics at every site (294,644).
   - Counted once it is **167,912** (473 shared cells, 43 % double counting removed). For example, site 1 drops from 34,818 to 2,731 and site 14 from 47,279 to 4,594; site 9 keeps 102,398.
   - The ranking changes, because population carries 30 % of the score.
+
+### Final run (15 Nov 2026, 15:22, run 2026-11-15_152203)
+- Phase 0 skipped (up to date); Phase 2 in 42 s; Phase 3 in 2 s; the dashboard opened in the browser.
+- 15 sites, 1,785 ha. 16,005 of 104,102 patches invalid overall; 224 of the 1,491 that touch the corridor.
+- People within 5 km: gross 294,644 (Zonal Statistics = cell check), **counted once 167,912**, 126,732 people in 473 shared cells. No-wadi variant: 295,147 vs 167,966.
+- **Final top 5** (default weights, wadi 300 m): site 7 (0.700), 9 (0.693), 8 (0.650, kept in class), 12 (0.636), 3 (0.629). Sites 7, 9, 8, 12, 3, 2 and 1 are in the top 10 under every scenario.
+- No-wadi variant: the full class site fid 22 (site 5 there, 105.3 ha) ranks first (0.714).
+- Written into the blog post and the YouTube plan.
+- **Next:** set `profiles.class.analysis.invalid_patches` to `"skip"` and run (expect 4 sites, all kept), then set it back to `"fix"` and run again so `latest` is the 15-site run.
