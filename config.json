@@ -1,0 +1,358 @@
+{
+  "profile": "class",
+  "profiles": {
+    "_note": "profile = 'brief' uses the settings below as they are (SUDAN_PROJECT_BRIEF.md). profile = 'class' overrides them with what the class actually ran on 18 Oct 2026 (QGIS Processing history + the class rule raster, checked cell by cell). Outputs go to output<suffix>, so both can be compared.",
+    "brief": {
+      "output_suffix": ""
+    },
+    "class": {
+      "output_suffix": "_class",
+      "raster": {
+        "dem_warp_order": "use_class_dem",
+        "dem_resampling": "nearest",
+        "dem_target_resolution_m": null,
+        "dem_clip_margin_m": 0,
+        "dem_class_grid": {
+          "x_min": 526618.238428536,
+          "y_max": 2561799.0916595887,
+          "cell_m": 181.40483583483845,
+          "cols": 3115,
+          "rows": 3739,
+          "_note": "the grid Warp chose automatically for the whole Sudan DEM in class (read from the class redSea_dem_utm36n.tiff). Warping only the Red Sea clip onto this grid gives the same cells without the 400 MB full-Sudan warp. Note: Nearest picks depend on GDAL's warp approximation, which changes with the extent, so this gives about 80 % identical cells, not 100 %."
+        },
+        "dem_class_file": "~/Projects/2026/Project_20260913/02_Raw_data/redSea_dem_utm36n.tiff"
+      },
+      "analysis": {
+        "slope_percent_min": 1.5,
+        "slope_percent_max": 5,
+        "aspect_min_deg": 22.5,
+        "aspect_max_deg": 75,
+        "sieve_threshold_cells": 0,
+        "connectedness": 8,
+        "dissolve_patches": false,
+        "corridor_method": "join_by_location",
+        "corridor_segments": 25,
+        "compute_edges": false,
+        "aspect_zero_flat": true,
+        "invalid_patches": "fix",
+        "class_reference": "export_from_Class/proposed_sites.gpkg"
+      }
+    }
+  },
+  "project": {
+    "name": "redSea_site_analysis",
+    "question": "Northeast-facing, gently sloping land within 5 km of the Port Sudan-Khartoum railway in Red Sea State; site area and population within 5 km.",
+    "qgis_version_tested": "3.40.6",
+    "python": "/usr/bin/python3"
+  },
+  "paths": {
+    "data_root": "/home/saltco/Downloads/sdn_datasets",
+    "input_vector_dir": "01_Data/training_utm36n",
+    "input_vector_dir_wgs84": "01_Data/training_wgs84",
+    "dem": "02_DEM_Rasters/srtm_sudan.tif",
+    "population": "03_Population_Raster/population_2020_1km.tif",
+    "output_root": "/home/saltco/Downloads/sdn_datasets/sudan_site_analysis/output",
+    "outputs_dir": "01_Data",
+    "clipped_inputs_dir": "02_Raw_data",
+    "rasters_dir": "03_Rasters",
+    "logs_dir": "logs"
+  },
+  "crs": {
+    "analysis": "EPSG:32636",
+    "web": "EPSG:4326",
+    "dem_source": "EPSG:4326",
+    "note": "UTM 36N kept for consistency with the course. Red Sea State reaches about 39 E, beyond zone 36 (30-36 E), so planar distances and areas carry a small distortion; Phase 2 reports ellipsoidal $area beside planar area($geometry)."
+  },
+  "study_area": {
+    "layer": "admin1_states",
+    "expression": "\"adm1_name\" = 'Red Sea'",
+    "output": "redSea_state"
+  },
+  "vector_layers": {
+    "railways": {
+      "source": "railways",
+      "output": "redSea_railways",
+      "expression": "\"fclass\" IN ('rail','narrow_gauge')",
+      "method": "clip"
+    },
+    "roads": {
+      "source": "roads",
+      "output": "redSea_roads",
+      "expression": null,
+      "method": "clip"
+    },
+    "rivers": {
+      "source": "rivers_waterways",
+      "output": "redSea_rivers",
+      "expression": null,
+      "method": "clip"
+    },
+    "water_bodies": {
+      "source": "water_bodies",
+      "output": "redSea_water_bodies",
+      "expression": null,
+      "method": "clip"
+    },
+    "natural_areas": {
+      "source": "natural_areas",
+      "output": "redSea_natural_areas",
+      "expression": null,
+      "method": "clip"
+    },
+    "districts": {
+      "source": "admin2_districts",
+      "output": "redSea_districts",
+      "expression": null,
+      "method": "select_by_location"
+    },
+    "towns": {
+      "source": "cities_towns",
+      "output": "redSea_towns",
+      "expression": null,
+      "method": "select_by_location"
+    },
+    "buildings": {
+      "source": "buildings",
+      "output": "redSea_buildings",
+      "expression": null,
+      "method": "clip",
+      "enabled": false,
+      "note": "1.7 M features, about 460 MB; turn on only when needed for the map."
+    }
+  },
+  "raster": {
+    "dem_clip_margin_m": 2000,
+    "dem_resampling": "bilinear",
+    "dem_target_resolution_m": 180,
+    "dem_nodata": -32768,
+    "dem_output_clip": "redSea_dem_wgs84",
+    "dem_output_utm": "redSea_dem_utm36n",
+    "population_clip_margin_m": 6000,
+    "population_nodata": -99999,
+    "population_output": "redSea_population_2020",
+    "population_margin_note": "Margin = catchment 5 km + 1 cell, so catchments of sites near the state border are not cut off.",
+    "dem_warp_order": "clip_then_warp",
+    "dem_warp_note": "clip_then_warp (brief), use_class_dem (class: the class DEM file, exact and fastest), class_grid (class: Red Sea clip warped onto the class grid, fast, ~80 % identical cells) or warp_then_clip (class: whole Sudan DEM warped first, slow). dem_target_resolution_m null = Warp's automatic resolution."
+  },
+  "railway": {
+    "corridor_method": "clip",
+    "check_result": "Clipped line = Port Sudan -> Haiya -> River Nile border near Berber; 159 features, 420 km, all unnamed (155 narrow_gauge, 4 rail). No Haiya-Kassala branch in this dataset.",
+    "network_note": "Line ends do not share exact vertices (75 parts at 1 m snap, 6 at 500 m). Fine for Buffer; Option A shortest path needs snapping first."
+  },
+  "analysis": {
+    "corridor_buffer_m": 5000,
+    "corridor_output": "railways_buff_5km",
+    "slope_percent_min": 2,
+    "slope_percent_max": 5,
+    "aspect_min_deg": 22.5,
+    "aspect_max_deg": 67.5,
+    "sieve_threshold_cells": 19,
+    "min_site_acres": 150,
+    "catchment_buffer_m": 5000,
+    "slope_tool": "gdal:slope (AS_PERCENT)",
+    "aspect_tool": "gdal:aspect",
+    "connectedness": 4,
+    "candidates_output": "candidate_patches",
+    "sites_output": "best_locations",
+    "population_output": "redSea_pop",
+    "ellipsoid": "EPSG:7030",
+    "dissolve_patches": true,
+    "corridor_method": "intersection",
+    "corridor_segments": 8,
+    "compute_edges": true,
+    "aspect_zero_flat": false,
+    "invalid_patches": "fix",
+    "class_reference": null,
+    "invalid_patches_note": "8-connected Polygonize makes polygons whose cells touch only at a corner; QGIS calls these invalid and, with the default Processing setting 'Invalid features filtering = Skip', drops them without a warning. fix = Fix Geometries keeps every patch; skip = drop them, as the class run did (4 sites instead of 15)."
+  },
+  "styles": {
+    "roads": {
+      "color": "211,211,211",
+      "width": 0.3
+    },
+    "rivers": {
+      "color": "166,206,227",
+      "width": 0.3
+    },
+    "districts": {
+      "fill": "none",
+      "outline": "200,200,200"
+    },
+    "states": {
+      "fill": "213,213,213",
+      "outline": "235,235,235"
+    },
+    "red_sea_state": {
+      "fill": "none",
+      "outline": "196,60,57",
+      "width": 0.76
+    },
+    "railways": {
+      "color": "0,0,0",
+      "width": 0.39,
+      "marker_color": "227,26,28"
+    },
+    "railway_buffer": {
+      "fill": "line_pattern_hatch",
+      "outline": "77,175,74",
+      "width": 0.3
+    },
+    "proposed_sites": {
+      "fill": "205,176,22",
+      "outline": "60,60,60"
+    },
+    "population": {
+      "fill": "196,60,57"
+    }
+  },
+  "exclusions": {
+    "wadi_buffer": {
+      "enabled": true,
+      "layer": "rivers",
+      "distance_m": 300,
+      "expression": "\"fclass\" IN ('river','stream')",
+      "note": "Most redSea_rivers lines are seasonal wadis (flash-flood risk). Land within distance_m is removed from the sites before the area filter.",
+      "make_both_variants": true
+    }
+  },
+  "scoring": {
+    "normalisation": "rank",
+    "normalisation_options": "rank = percentile rank 0-1 (robust to one huge site); minmax; log_minmax = ln(1+x) then minmax",
+    "factors": {
+      "area": {
+        "enabled": true,
+        "weight": 0.3,
+        "field": "area_ha",
+        "higher_is_better": true
+      },
+      "population": {
+        "enabled": true,
+        "weight": 0.3,
+        "field": "pop_5km",
+        "higher_is_better": true
+      },
+      "road_distance": {
+        "enabled": true,
+        "weight": 0.15,
+        "field": "dist_road_m",
+        "higher_is_better": false,
+        "layer": "roads",
+        "note": "site centroid to nearest road (Join Attributes by Nearest)"
+      },
+      "rail_distance": {
+        "enabled": true,
+        "weight": 0.1,
+        "field": "dist_rail_m",
+        "higher_is_better": false,
+        "layer": "railways",
+        "note": "site centroid to nearest railway; all sites are within 5 km, so keep the weight modest"
+      },
+      "compactness": {
+        "enabled": true,
+        "weight": 0.15,
+        "field": "compactness",
+        "higher_is_better": true,
+        "note": "Polsby-Popper 4*pi*A/P^2: 1 = circle, near 0 = thin sliver. Raster-edged polygons score low but alike."
+      },
+      "port_distance": {
+        "enabled": false,
+        "weight": 0.1,
+        "field": "dist_port_km",
+        "higher_is_better": false,
+        "town": "Port Sudan",
+        "note": "site centroid to Port Sudan (export/import access)"
+      },
+      "buildings_5km": {
+        "enabled": false,
+        "weight": 0.1,
+        "field": "buildings_5km",
+        "higher_is_better": true,
+        "note": "OSM building count in the 5 km catchment: a 2026 settlement proxy. Needs vector_layers.buildings.enabled = true and Phase 0 re-run."
+      }
+    },
+    "scenarios": {
+      "balanced": "use the factor weights above",
+      "workforce": {
+        "population": 0.5,
+        "area": 0.2,
+        "road_distance": 0.15,
+        "rail_distance": 0.05,
+        "compactness": 0.1
+      },
+      "land": {
+        "area": 0.5,
+        "compactness": 0.3,
+        "population": 0.1,
+        "road_distance": 0.1
+      },
+      "access": {
+        "road_distance": 0.35,
+        "rail_distance": 0.25,
+        "port_distance": 0.1,
+        "area": 0.15,
+        "population": 0.15
+      }
+    },
+    "weights_note": "Only enabled factors count; their weights are rescaled to sum to 1, so switching one off never breaks the score."
+  },
+  "phase3": {
+    "title": "Clicks vs Code: Red Sea Site Analysis",
+    "output_html": "dashboard/index.html",
+    "coordinate_precision": 5,
+    "simplify_tolerance_m": {
+      "roads": 50,
+      "rivers": 50,
+      "districts": 200,
+      "states": 500,
+      "corridor": 25,
+      "sites": 5,
+      "catchments": 50
+    },
+    "roads_expression": "\"fclass\" NOT IN ('residential','service','footway','path')",
+    "leaflet_version": "1.9.4",
+    "basemaps": [
+      "none",
+      "custom",
+      "esri_imagery"
+    ],
+    "default_basemap": "custom",
+    "note": "The scoring runs in the browser (same rules as scoring.py). Slope, aspect, corridor and minimum-area thresholds need a Phase 2 re-run.",
+    "roads_note": "Web map only: drops 13,800 mostly urban residential/service roads (the road-distance factor uses all roads).",
+    "states_source": "training_wgs84/admin1_states (context for the web map)",
+    "labels": {
+      "area": "Area",
+      "population": "Population 5 km",
+      "road_distance": "Road distance",
+      "rail_distance": "Railway distance",
+      "compactness": "Compactness",
+      "port_distance": "Port Sudan distance",
+      "buildings_5km": "Buildings 5 km"
+    },
+    "units": {
+      "area": "ha",
+      "population": "people",
+      "road_distance": "km",
+      "rail_distance": "km",
+      "compactness": "0-1",
+      "port_distance": "km",
+      "buildings_5km": "buildings"
+    },
+    "sri_check": true,
+    "custom_tiles": {
+      "enabled": true,
+      "label": "Sudan map (local tiles)",
+      "path": "~/Projects/2026/Project_20260913/03_Working_Dir/custom_tiles",
+      "mode": "link",
+      "attribution": "Map data &copy; OpenStreetMap contributors; tiles: QGIS Generate XYZ tiles",
+      "_note": "mode link = relative path to the folder (no copy; only works on this laptop); copy = put the 333 MB of tiles in <dashboard>/tiles so the dashboard folder can travel."
+    },
+    "basemaps_note": "The online OpenStreetMap basemap was replaced by the local tiles (custom_tiles): they work offline and use no data. An old 'osm' default now opens the local tiles.",
+    "credits": {
+      "prepared_by": "saltco.org",
+      "url": "https://saltco.org",
+      "course": "Applied Spatial Analysis using QGIS - Week 5 & 6",
+      "note": "Built with free & open-source software (FOSS): QGIS, GDAL, Python, Leaflet",
+      "url_repo": "https://github.com/saltcotraining-geoai/redSea_site_analysis"
+    }
+  }
+}

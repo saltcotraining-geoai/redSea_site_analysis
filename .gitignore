@@ -1,0 +1,19 @@
+# results: every run writes its own folder; not part of the code
+output/
+output_*/
+# local backups and Python caches
+_backup_*/
+__pycache__/
+*.pyc
+# GIS side files and large data (the class data stays outside the repo)
+*.aux.xml
+*.tif
+*.tiff
+*.sdat
+*.zip
+*.qgz
+*.qgs~
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
